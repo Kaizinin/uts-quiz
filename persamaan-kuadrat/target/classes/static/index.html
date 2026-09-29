@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Persamaan Kuadrat</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; margin-top: 4px; }
+    button { margin-top: 16px; padding: 10px 16px; cursor: pointer; }
+    #hasil { margin-top: 24px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; display: none; }
+    #hasil p { margin: 4px 0; }
+    .error { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>Persamaan Kuadrat</h1>
+  <p>Bentuk umum: <b>ax² + bx + c = 0</b></p>
+
+  <label for="a">Nilai a</label>
+  <input id="a" type="number" step="any" value="1">
+
+  <label for="b">Nilai b</label>
+  <input id="b" type="number" step="any" value="-5">
+
+  <label for="c">Nilai c</label>
+  <input id="c" type="number" step="any" value="6">
+
+  <button onclick="hitung()">Hitung</button>
+
+  <div id="hasil"></div>
+
+  <script>
+    async function hitung() {
+      const box = document.getElementById("hasil");
+      box.style.display = "block";
+      const a = document.getElementById("a").value;
+      const b = document.getElementById("b").value;
+      const c = document.getElementById("c").value;
+
+      if (a === "" || b === "" || c === "") {
+        box.innerHTML = '<p class="error">Isi nilai a, b, dan c terlebih dahulu.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/kuadrat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ a: Number(a), b: Number(b), c: Number(c) })
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.message || "Input tidak valid (kode " + res.status + ")");
+
+        box.innerHTML =
+          `<p>Persamaan: <b>${d.persamaan}</b></p>` +
+          `<p>Diskriminan (D): ${d.diskriminan}</p>` +
+          `<p>Jenis akar: ${d.jenisAkar}</p>` +
+          `<p><b>x₁ = ${d.x1}</b></p>` +
+          `<p><b>x₂ = ${d.x2}</b></p>`;
+      } catch (e) {
+        box.innerHTML = `<p class="error">${e.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
