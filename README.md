@@ -1,4 +1,4 @@
-# Latihan Spring Boot
+# UTS Quiz Ryan Fazli Mawla (016)
 
 Kumpulan dua program sederhana berbasis Spring Boot, masing-masing dengan REST API dan halaman HTML sebagai antarmuka.
 
