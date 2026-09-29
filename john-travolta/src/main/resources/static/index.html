@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Soal John Travolta</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; margin-top: 4px; }
+    button { margin-top: 16px; padding: 10px 16px; cursor: pointer; }
+    #hasil { margin-top: 24px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; display: none; }
+    #hasil p { margin: 4px 0; }
+    .error { color: #b00020; }
+  </style>
+</head>
+<body>
+  <h1>Soal John Travolta</h1>
+
+  <label for="jamKerja">Jam kerja per minggu</label>
+  <input id="jamKerja" type="number" min="0" step="any" value="52">
+
+  <label for="rate">Rate per jam (Rp)</label>
+  <input id="rate" type="number" min="1" step="any" value="15000">
+
+  <label for="pengeluaran">Pengeluaran seminggu (Rp)</label>
+  <input id="pengeluaran" type="number" min="0" step="any" value="600000">
+
+  <button onclick="hitung()">Hitung</button>
+
+  <div id="hasil"></div>
+
+  <script>
+    const rp = n => "Rp " + Number(n).toLocaleString("id-ID");
+
+    async function hitung() {
+      const box = document.getElementById("hasil");
+      box.style.display = "block";
+      try {
+        const res = await fetch("/api/gaji", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jamKerja: Number(document.getElementById("jamKerja").value),
+            rate: Number(document.getElementById("rate").value),
+            pengeluaran: Number(document.getElementById("pengeluaran").value)
+          })
+        });
+        if (!res.ok) throw new Error("Input tidak valid (kode " + res.status + ")");
+        const d = await res.json();
+        box.innerHTML =
+          `<p>Jam normal: ${d.jamNormal} | Jam lembur: ${d.jamLembur}</p>` +
+          `<p>Gaji normal: ${rp(d.gajiNormal)}</p>` +
+          `<p>Gaji lembur: ${rp(d.gajiLembur)}</p>` +
+          `<p><b>Total gaji: ${rp(d.totalGaji)}</b></p>` +
+          `<p>Pengeluaran: ${rp(d.pengeluaran)}</p>` +
+          `<p><b>Status: ${d.status}</b></p>` +
+          `<p>Tabungan: ${rp(d.tabungan)}</p>`;
+      } catch (e) {
+        box.innerHTML = `<p class="error">${e.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
